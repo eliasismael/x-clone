@@ -1,3 +1,5 @@
+import { logoutAction } from "@/app/(app)/actions";
+import { LogoutButton } from "@/components/auth/logout-button";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -18,12 +20,15 @@ export function AppShell({ children }: AppShellProps) {
             </p>
             <h1 className="mt-1 text-2xl font-semibold text-slate-950">Builder workspace</h1>
           </div>
-          <Link
-            href="/"
-            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
-          >
-            Landing
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/"
+              className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
+            >
+              Landing
+            </Link>
+            <LogoutButton action={logoutAction} />
+          </div>
         </div>
         <nav className="mt-6 grid gap-2">
           {navItems.map((item) => (

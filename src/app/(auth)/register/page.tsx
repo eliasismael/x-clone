@@ -1,6 +1,14 @@
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/session";
 import { RegisterForm } from "./register-form";
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  const currentUser = await getCurrentUser();
+
+  if (currentUser) {
+    redirect("/home");
+  }
+
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-16">
       <div className="grid w-full max-w-5xl gap-8 lg:grid-cols-[0.95fr_1.05fr]">
