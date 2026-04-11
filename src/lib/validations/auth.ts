@@ -14,6 +14,12 @@ export const registerSchema = z
       )
       .transform((value) => value.toLowerCase()),
     email: z.email("Enter a valid email address.").transform((value) => value.trim().toLowerCase()),
+    bio: z
+      .string()
+      .trim()
+      .max(160, "Bio must be at most 160 characters.")
+      .optional()
+      .transform((value) => (value?.length ? value : null)),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters.")

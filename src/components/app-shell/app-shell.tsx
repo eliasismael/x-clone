@@ -1,15 +1,21 @@
 import { logoutAction } from "@/app/(app)/actions";
 import { LogoutButton } from "@/components/auth/logout-button";
+import Image from "next/image";
 import Link from "next/link";
+import type { User } from "@prisma/client";
 import type { ReactNode } from "react";
 
 type AppShellProps = {
+  currentUser: Pick<User, "displayName" | "username" | "bio" | "avatarUrl">;
   children: ReactNode;
 };
 
-const navItems = ["Home", "Explore", "Notifications", "Profile"];
+const navItems = [
+  { label: "Home", href: "/home" },
+  { label: "Profile", href: "/profile" },
+];
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ currentUser, children }: AppShellProps) {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col lg:flex-row">
       <aside className="border-b border-slate-200 bg-white/85 px-4 py-5 backdrop-blur lg:min-h-screen lg:w-72 lg:border-r lg:border-b-0 lg:px-6">
@@ -32,22 +38,37 @@ export function AppShell({ children }: AppShellProps) {
         </div>
         <nav className="mt-6 grid gap-2">
           {navItems.map((item) => (
-            <div
-              key={item}
+            <Link
+              key={item.href}
+              href={item.href}
               className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
             >
-              {item}
-            </div>
+              {item.label}
+            </Link>
           ))}
         </nav>
+        <div className="mt-6 rounded-[28px] border border-slate-200 bg-slate-50 p-4">
+          <div className="flex items-center gap-3">
+            <Image
+              src={currentUser.avatarUrl ?? `https://api.dicebear.com/9.x/initials/svg?seed=${currentUser.username}`}
+              alt={`${currentUser.displayName} avatar`}
+              width={48}
+              height={48}
+              className="size-12 rounded-full border border-slate-200 bg-white"
+            />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-slate-950">{currentUser.displayName}</p>
+              <p className="truncate text-sm text-slate-500">@{currentUser.username}</p>
+            </div>
+          </div>
+        </div>
       </aside>
       <main className="flex-1">{children}</main>
       <aside className="hidden w-80 border-l border-slate-200 px-6 py-8 xl:block">
         <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-950">Next up</h2>
+          <h2 className="text-lg font-semibold text-slate-950">Profile preview</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Wire credentials auth into the shell, persist sessions in the database, and connect the
-            feed to real data.
+            {currentUser.bio ?? "Add a short bio to tell people what you are about."}
           </p>
         </div>
       </aside>

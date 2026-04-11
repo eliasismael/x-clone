@@ -17,7 +17,7 @@ test("user can register, sign out, and sign back in", async ({ page }) => {
 
   await expect(page).toHaveURL(/\/home$/);
   await expect(page.getByText("Signed in as")).toContainText("Elias Pereyra");
-  await expect(page.getByText(`@${username}`)).toBeVisible();
+  await expect(page.getByText(`@${username}`).first()).toBeVisible();
 
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/login$/);
@@ -27,5 +27,5 @@ test("user can register, sign out, and sign back in", async ({ page }) => {
   await page.getByRole("button", { name: "Sign in" }).click();
 
   await expect(page).toHaveURL(/\/home$/);
-  await expect(page.getByText(`@${username}`)).toBeVisible();
+  await expect(page.getByText(`@${username}`).first()).toBeVisible();
 });

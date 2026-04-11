@@ -2,13 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
+import { buildAvatarUrl } from "@/lib/avatar";
 import { hashPassword } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createUserSession } from "@/lib/session";
 import { registerSchema } from "@/lib/validations/auth";
 
 export type RegisterActionState = {
-  fieldErrors?: Partial<Record<"displayName" | "username" | "email" | "password" | "confirmPassword", string>>;
+  fieldErrors?: Partial<Record<"displayName" | "username" | "email" | "bio" | "password" | "confirmPassword", string>>;
   formError?: string;
 };
 
@@ -20,6 +21,7 @@ export async function registerAction(
     displayName: formData.get("displayName"),
     username: formData.get("username"),
     email: formData.get("email"),
+    bio: formData.get("bio"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
   });
@@ -32,6 +34,7 @@ export async function registerAction(
         displayName: flattened.displayName?.[0],
         username: flattened.username?.[0],
         email: flattened.email?.[0],
+        bio: flattened.bio?.[0],
         password: flattened.password?.[0],
         confirmPassword: flattened.confirmPassword?.[0],
       },
@@ -46,6 +49,7 @@ export async function registerAction(
     const user = await db.user.create({
       data: {
         ...values,
+        avatarUrl: buildAvatarUrl(values.username),
         passwordHash: await hashPassword(password),
       },
     });
