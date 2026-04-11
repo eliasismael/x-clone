@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# X Clone Codex
 
-## Getting Started
+A modern social app inspired by X/Twitter, built as a full-stack web application with Next.js, Prisma, and PostgreSQL.
 
-First, run the development server:
+This repository is being developed incrementally. The current state includes the initial application scaffold, database schema foundations, local development tooling, and the first UI shells for authentication and timeline flows.
+
+## Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Prisma
+- PostgreSQL
+- Vitest
+
+## Why This Stack
+
+- Next.js:
+  chosen to keep frontend and backend concerns in a single application, reducing project overhead and making it easier to iterate on UI, server actions, routing, and API endpoints together.
+- React:
+  used to build a responsive and interactive client experience with a component model that scales well as the timeline, profile, and social interactions grow.
+- TypeScript:
+  added to improve reliability during rapid iteration, especially across database models, server logic, and UI boundaries.
+- Tailwind CSS:
+  selected to move quickly on responsive UI work while keeping styling close to components and avoiding early complexity in the design layer.
+- Prisma:
+  chosen for its developer experience, type-safe database access, and fast iteration when modeling users, tweets, follows, likes, and sessions.
+- PostgreSQL:
+  used as the primary relational database because it is a strong fit for structured social data, relationships, indexing, and future growth.
+- Vitest:
+  selected to keep the test loop fast and lightweight while building confidence in utility, domain, and integration behavior from the start.
+
+## Current Status
+
+The project currently includes:
+
+- App Router setup with a custom landing page
+- Initial app shell for timeline and auth routes
+- Prisma schema for users, sessions, tweets, follows, and likes
+- Docker Compose for local PostgreSQL
+- Seed script foundation for realistic sample data
+- Linting, type-checking, and test setup
+
+## Local Development
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create your local environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Start PostgreSQL:
+
+```bash
+docker compose up -d
+```
+
+4. Generate the Prisma client:
+
+```bash
+npm run db:generate
+```
+
+5. Push the schema to the local database:
+
+```bash
+npm run db:push
+```
+
+6. Seed sample data:
+
+```bash
+npm run db:seed
+```
+
+7. Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Useful Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `npm run dev`
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test`
+- `npm run db:generate`
+- `npm run db:push`
+- `npm run db:migrate`
+- `npm run db:seed`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Notes
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Local development uses `.env.local`, created from `.env.example`.
+- Production or deployed environments should provide real secrets and service-specific configuration.
+- Authentication is planned as an app-owned credentials flow backed by database sessions.
+- The README will expand as features are implemented, including full setup, seed usage, testing instructions, and architectural decisions.
