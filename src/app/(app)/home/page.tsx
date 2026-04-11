@@ -1,5 +1,7 @@
 import { AppShell } from "@/components/app-shell/app-shell";
+import { getCurrentUser } from "@/lib/session";
 import { formatCount } from "@/lib/utils";
+import { redirect } from "next/navigation";
 
 const mockTweets = [
   {
@@ -20,7 +22,13 @@ const mockTweets = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    redirect("/login");
+  }
+
   return (
     <AppShell>
       <div className="min-h-screen bg-white/70 px-4 py-6 sm:px-6 lg:px-10">
@@ -30,6 +38,10 @@ export default function HomePage() {
             <p className="mt-2 text-sm leading-6 text-slate-600">
               This area is ready for protected data fetching once auth and feed actions are wired up.
             </p>
+            <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
+              Signed in as <span className="font-semibold text-slate-950">{currentUser.displayName}</span>{" "}
+              <span className="text-slate-500">@{currentUser.username}</span>
+            </div>
           </section>
           {mockTweets.map((tweet) => (
             <article

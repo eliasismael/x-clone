@@ -52,8 +52,8 @@ npm install
 
 2. Create your local environment file:
 
-```bash
-cp .env.example .env.local
+```powershell
+Copy-Item .env.example .env.local
 ```
 
 3. Start PostgreSQL:
@@ -100,6 +100,7 @@ npm run dev
 ## Notes
 
 - Local development uses `.env.local`, created from `.env.example`.
+- Prisma scripts are configured to read `.env.local` directly, so the same env file works for both Next.js and Prisma.
 - Production or deployed environments should provide real secrets and service-specific configuration.
 - Authentication is planned as an app-owned credentials flow backed by database sessions.
 - The README will expand as features are implemented, including full setup, seed usage, testing instructions, and architectural decisions.
