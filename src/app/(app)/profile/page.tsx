@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { getCurrentUser } from "@/lib/session";
+import { EditProfileForm } from "./edit-profile-form";
 
 export default async function ProfilePage() {
   const currentUser = await getCurrentUser();
@@ -18,9 +19,11 @@ export default async function ProfilePage() {
                 height={96}
                 className="size-24 rounded-full border-4 border-white bg-white shadow-sm"
               />
-              <div className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600">
-                Profile
-              </div>
+              <EditProfileForm
+                displayName={currentUser?.displayName ?? ""}
+                username={currentUser?.username ?? ""}
+                bio={currentUser?.bio ?? null}
+              />
             </div>
 
             <div className="mt-4">

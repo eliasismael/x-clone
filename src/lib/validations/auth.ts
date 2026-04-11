@@ -42,3 +42,22 @@ export const loginSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+
+export const editProfileSchema = z.object({
+  displayName: z.string().trim().min(2, "Display name must be at least 2 characters.").max(50),
+  username: z
+    .string()
+    .trim()
+    .min(3, "Username must be at least 3 characters.")
+    .max(24)
+    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores.")
+    .transform((value) => value.toLowerCase()),
+  bio: z
+    .string()
+    .trim()
+    .max(160, "Bio must be at most 160 characters.")
+    .optional()
+    .transform((value) => (value?.length ? value : null)),
+});
+
+export type EditProfileInput = z.infer<typeof editProfileSchema>;

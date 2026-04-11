@@ -45,4 +45,17 @@ describe("registerSchema", () => {
 
     expect(result.bio).toBeNull();
   });
+
+  it("rejects bios longer than 160 characters", () => {
+    const result = registerSchema.safeParse({
+      displayName: "Jane Doe",
+      username: "jane_doe",
+      email: "jane@example.com",
+      bio: "a".repeat(161),
+      password: "Password123!",
+      confirmPassword: "Password123!",
+    });
+
+    expect(result.success).toBe(false);
+  });
 });
