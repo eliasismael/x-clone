@@ -81,3 +81,24 @@ export function TweetCard({ tweet, currentUserId }: TweetCardProps) {
     </article>
   );
 }
+
+export function TweetSkeleton() {
+  return (
+    <div className="animate-pulse rounded-[28px] border border-slate-100 bg-white/50 p-5 shadow-sm">
+      <div className="flex items-start gap-3">
+        <div className="size-11 shrink-0 rounded-full bg-slate-200" />
+        <div className="min-w-0 flex-1 space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-24 rounded bg-slate-200" />
+            <div className="h-4 w-32 rounded bg-slate-100" />
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 w-full rounded bg-slate-100" />
+            <div className="h-4 w-2/3 rounded bg-slate-100" />
+          </div>
+          <div className="h-4 w-16 rounded bg-slate-100" />
+        </div>
+      </div>
+    </div>
+  );
+}

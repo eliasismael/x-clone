@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { tweetSchema } from "@/lib/validations/tweet";
+import { getTimelinePage, type TimelineCursor, type TimelinePage } from "@/lib/queries/timeline";
 
 export type CreateTweetActionState =
   | { ok: true }
@@ -68,4 +69,14 @@ export async function deleteTweetAction(tweetId: string): Promise<void> {
   await db.tweet.delete({ where: { id: tweetId } });
 
   revalidatePath("/home");
+}
+
+export async function loadMoreTweetsAction(cursor: TimelineCursor): Promise<TimelinePage> {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    redirect("/login");
+  }
+
+  return getTimelinePage(currentUser.id, cursor);
 }
