@@ -13,7 +13,15 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      include: ["src/lib/**/*.ts"],
+      include: [
+        "src/lib/**/*.ts",
+        "src/app/(app)/**/actions.ts",
+      ],
+      exclude: [
+        "src/lib/db.ts",
+        "src/lib/env.ts",
+        "src/lib/constants.ts",
+      ],
     },
   },
   resolve: {
