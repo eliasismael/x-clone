@@ -48,21 +48,22 @@ export function AppShell({ currentUser, children }: AppShellProps) {
             </Link>
           ))}
         </nav>
-        <div className="mt-6 rounded-[28px] border border-slate-200 bg-slate-50 p-4">
-          <div className="flex items-center gap-3">
-            <Image
-              src={currentUser.avatarUrl ?? `https://api.dicebear.com/9.x/initials/svg?seed=${currentUser.username}`}
-              alt={`${currentUser.displayName} avatar`}
-              width={48}
-              height={48}
-              className="size-12 rounded-full border border-slate-200 bg-white"
-            />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-slate-950">{currentUser.displayName}</p>
-              <p className="truncate text-sm text-slate-500">@{currentUser.username}</p>
-            </div>
+        <Link
+          href={`/users/${currentUser.username}`}
+          className="mt-6 flex items-center gap-3 rounded-[28px] border border-slate-200 bg-slate-50 p-4 transition hover:bg-slate-100"
+        >
+          <Image
+            src={currentUser.avatarUrl ?? `https://api.dicebear.com/9.x/initials/svg?seed=${currentUser.username}`}
+            alt={`${currentUser.displayName} avatar`}
+            width={48}
+            height={48}
+            className="size-12 shrink-0 rounded-full border border-slate-200 bg-white"
+          />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-950">{currentUser.displayName}</p>
+            <p className="truncate text-sm text-slate-500">@{currentUser.username}</p>
           </div>
-        </div>
+        </Link>
       </aside>
       <main className="flex-1">{children}</main>
       <aside className="hidden w-80 border-l border-slate-200 px-6 py-8 xl:block">
