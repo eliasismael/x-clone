@@ -1,12 +1,13 @@
 import { logoutAction } from "@/app/(app)/actions";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { WhoToFollow } from "@/components/user/who-to-follow";
 import Image from "next/image";
 import Link from "next/link";
 import type { User } from "@prisma/client";
 import type { ReactNode } from "react";
 
 type AppShellProps = {
-  currentUser: Pick<User, "displayName" | "username" | "bio" | "avatarUrl">;
+  currentUser: Pick<User, "id" | "displayName" | "username" | "bio" | "avatarUrl">;
   children: ReactNode;
 };
 
@@ -65,12 +66,7 @@ export function AppShell({ currentUser, children }: AppShellProps) {
       </aside>
       <main className="flex-1">{children}</main>
       <aside className="hidden w-80 border-l border-slate-200 px-6 py-8 xl:block">
-        <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-950">Profile preview</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            {currentUser.bio ?? "Add a short bio to tell people what you are about."}
-          </p>
-        </div>
+        <WhoToFollow currentUserId={currentUser.id} />
       </aside>
     </div>
   );

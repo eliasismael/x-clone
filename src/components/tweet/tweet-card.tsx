@@ -4,6 +4,7 @@ import { deleteTweetAction } from "@/app/(app)/home/actions";
 import { buildAvatarUrl } from "@/lib/avatar";
 import { formatRelativeTime } from "@/lib/utils";
 import { LikeButton } from "@/components/tweet/like-button";
+import { FollowButton } from "@/components/user/follow-button";
 
 export type TweetCardData = {
   id: string;
@@ -14,6 +15,7 @@ export type TweetCardData = {
     username: string;
     displayName: string;
     avatarUrl: string | null;
+    followers?: { followerId: string }[];
   };
   _count: {
     likes: number;
@@ -28,6 +30,7 @@ type TweetCardProps = {
 
 export function TweetCard({ tweet, currentUserId }: TweetCardProps) {
   const isOwnTweet = tweet.author.id === currentUserId;
+  const isFollowing = tweet.author.followers?.some((f) => f.followerId === currentUserId) ?? false;
   const avatarSrc = tweet.author.avatarUrl ?? buildAvatarUrl(tweet.author.username);
   const deleteAction = deleteTweetAction.bind(null, tweet.id);
 
@@ -58,7 +61,7 @@ export function TweetCard({ tweet, currentUserId }: TweetCardProps) {
               </p>
             </div>
 
-            {isOwnTweet && (
+            {isOwnTweet ? (
               <form action={deleteAction}>
                 <button
                   type="submit"
@@ -67,6 +70,8 @@ export function TweetCard({ tweet, currentUserId }: TweetCardProps) {
                   Delete
                 </button>
               </form>
+            ) : (
+              <FollowButton targetUserId={tweet.author.id} isFollowing={isFollowing} />
             )}
           </div>
 

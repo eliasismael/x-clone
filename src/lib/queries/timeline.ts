@@ -16,6 +16,7 @@ export type TimelineTweet = {
     username: string;
     displayName: string;
     avatarUrl: string | null;
+    followers: { followerId: string }[];
   };
   _count: { likes: number };
   likes: { userId: string }[];
@@ -58,6 +59,10 @@ export async function getTimelinePage(
           username: true,
           displayName: true,
           avatarUrl: true,
+          followers: {
+            where: { followerId: userId },
+            select: { followerId: true },
+          },
         },
       },
       _count: { select: { likes: true } },
