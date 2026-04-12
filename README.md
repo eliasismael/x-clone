@@ -1,106 +1,157 @@
-# X Clone Codex
+# x-clone
 
-A modern social app inspired by X/Twitter, built as a full-stack web application with Next.js, Prisma, and PostgreSQL.
-
-This repository is being developed incrementally. The current state includes the initial application scaffold, database schema foundations, local development tooling, and the first UI shells for authentication and timeline flows.
+A full-stack Twitter/X clone built as a technical challenge. Implements the core social features: authentication, tweets, timeline, likes, follows, search, and user profiles.
 
 ## Stack
 
-- Next.js 16
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- Prisma
-- PostgreSQL
-- Vitest
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| Database | PostgreSQL 16 |
+| ORM | Prisma 6 |
+| Styling | Tailwind CSS 4 |
+| Unit/Integration tests | Vitest + Testing Library |
+| E2E tests | Playwright |
+| Runtime | Node.js 20+ |
 
-## Why This Stack
+## Why this stack
 
-- Next.js:
-  chosen to keep frontend and backend concerns in a single application, reducing project overhead and making it easier to iterate on UI, server actions, routing, and API endpoints together.
-- React:
-  used to build a responsive and interactive client experience with a component model that scales well as the timeline, profile, and social interactions grow.
-- TypeScript:
-  added to improve reliability during rapid iteration, especially across database models, server logic, and UI boundaries.
-- Tailwind CSS:
-  selected to move quickly on responsive UI work while keeping styling close to components and avoiding early complexity in the design layer.
-- Prisma:
-  chosen for its developer experience, type-safe database access, and fast iteration when modeling users, tweets, follows, likes, and sessions.
-- PostgreSQL:
-  used as the primary relational database because it is a strong fit for structured social data, relationships, indexing, and future growth.
-- Vitest:
-  selected to keep the test loop fast and lightweight while building confidence in utility, domain, and integration behavior from the start.
+**Next.js** keeps frontend and backend in a single repo. Server Actions handle mutations without a separate API layer, and React Server Components fetch data directly — no REST boilerplate, no client/server boundary to coordinate. This compresses development time significantly.
 
-## Current Status
+**Prisma** provides type-safe database access with first-class TypeScript support. Schema migrations, the query builder, and generated types all align with the incremental commit-by-feature workflow used here.
 
-The project currently includes:
+**PostgreSQL** is the natural choice for a social graph. Composite primary keys on `follows` and `likes` enforce uniqueness at the DB level; indexes on `(authorId, createdAt DESC)` make timeline queries fast.
 
-- App Router setup with a custom landing page
-- Initial app shell for timeline and auth routes
-- Prisma schema for users, sessions, tweets, follows, and likes
-- Docker Compose for local PostgreSQL
-- Seed script foundation for realistic sample data
-- Linting, type-checking, and test setup
+**Vitest** shares the same config and module resolution as the app, so server action tests run without extra build steps. Testing Library covers interactive components. Playwright handles the full auth E2E flow.
 
-## Local Development
+---
 
-1. Install dependencies:
+## Runbook
+
+### Prerequisites
+
+- **Node.js 20+** — [nodejs.org](https://nodejs.org)
+- **Docker** (for PostgreSQL) — [docker.com](https://docker.com)
+- **npm 10+** (bundled with Node)
+
+### Setup
 
 ```bash
+# 1. Clone the repo
+git clone <repo-url>
+cd x-clone-codex
+
+# 2. Install dependencies
 npm install
-```
 
-2. Create your local environment file:
+# 3. Copy environment file
+cp .env.example .env.local
 
-```powershell
-Copy-Item .env.example .env.local
-```
-
-3. Start PostgreSQL:
-
-```bash
+# 4. Start PostgreSQL
 docker compose up -d
-```
 
-4. Generate the Prisma client:
-
-```bash
+# 5. Generate Prisma client
 npm run db:generate
-```
 
-5. Push the schema to the local database:
-
-```bash
+# 6. Push schema to the database
 npm run db:push
-```
 
-6. Seed sample data:
-
-```bash
+# 7. Seed with sample data
 npm run db:seed
-```
 
-7. Start the development server:
-
-```bash
+# 8. Start the development server
 npm run dev
 ```
 
-## Useful Scripts
+The app is now running at **http://localhost:3000**.
 
-- `npm run dev`
-- `npm run lint`
-- `npm run typecheck`
-- `npm run test`
-- `npm run db:generate`
-- `npm run db:push`
-- `npm run db:migrate`
-- `npm run db:seed`
+### Sample credentials
 
-## Notes
+After seeding, any of the following accounts can be used to log in:
 
-- Local development uses `.env.local`, created from `.env.example`.
-- Prisma scripts are configured to read `.env.local` directly, so the same env file works for both Next.js and Prisma.
-- Production or deployed environments should provide real secrets and service-specific configuration.
-- Authentication is planned as an app-owned credentials flow backed by database sessions.
-- The README will expand as features are implemented, including full setup, seed usage, testing instructions, and architectural decisions.
+| Email | Password |
+|-------|----------|
+| `user1@example.com` | `Password123!` |
+| `user2@example.com` | `Password123!` |
+
+All 10 seed users share the same password. The seed creates cross-follows and cross-likes, so `user1`'s timeline will have content immediately.
+
+### Environment variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5432/x_clone?schema=public` |
+| `AUTH_SECRET` | Secret used to sign session tokens | Any long random string |
+| `APP_URL` | Public base URL of the app | `http://localhost:3000` |
+
+### Running tests
+
+```bash
+# Unit and integration tests (with coverage report)
+npm run test
+
+# Watch mode during development
+npm run test:watch
+
+# End-to-end tests (requires the dev server to be running)
+npm run dev        # in one terminal
+npm run test:e2e   # in another
+```
+
+Current coverage: **98.5%** across all lib modules and server actions.
+
+### Other scripts
+
+```bash
+npm run build       # Production build
+npm run lint        # ESLint
+npm run typecheck   # TypeScript type check
+npm run db:migrate  # Create a new Prisma migration
+npm run db:seed     # Re-seed the database (destructive — clears existing data)
+```
+
+---
+
+## Architecture decisions
+
+### Timeline model
+
+The timeline query uses a Prisma `OR` clause:
+
+```
+tweets WHERE authorId = me OR author.followers.some(followerId = me)
+```
+
+Pagination uses a **cursor** strategy (`createdAt` + `id` composite) rather than `OFFSET`. This avoids the classic offset drift problem where new tweets shift rows between page fetches, which would cause duplicates or gaps in an infinite scroll feed.
+
+### Follow graph
+
+Follows are stored in a `Follow` table with a composite primary key `[followerId, followingId]`. This enforces uniqueness at the database level (no duplicate follows possible even under concurrent requests) and makes `isFollowing` checks a simple indexed lookup.
+
+### Authentication
+
+Auth is fully app-owned — no third-party service:
+
+1. Passwords are hashed with **bcrypt** (cost factor 10) before storage.
+2. On login, a 256-bit random token is generated, hashed with SHA-256, and stored in a `sessions` table with an expiry.
+3. The raw token (not the hash) is placed in an **HttpOnly, SameSite=Lax** cookie.
+4. On each request, the cookie token is hashed and looked up in the DB. Expired sessions are cleaned up on access.
+
+This approach means sessions can be invalidated server-side (e.g., on logout or security events) and credentials never leave the server.
+
+### Avatar uploads
+
+Avatars are stored in `public/uploads/avatars/` during development. The file is written server-side via a Server Action, which validates MIME type and file size (max 2 MB) before writing. Old avatar files are deleted when replaced. In a production deployment this would be replaced with object storage (S3, R2, etc.) — the current approach is intentional for simplicity within the challenge scope.
+
+### Trade-offs and known limitations
+
+- **Avatar storage is local** — files are lost on server restart in containerized environments. Acceptable for local dev and the challenge, not for production.
+- **No real-time updates** — the timeline refreshes only on navigation. A WebSocket or SSE layer would be the next step.
+- **Session table grows unboundedly** — expired sessions are only cleaned up on access by the owning user. A background job should periodically prune expired rows.
+- **Search is full-table `ILIKE`** — works well up to tens of thousands of users. At scale this would need a dedicated search index (PostgreSQL `pg_trgm`, Elasticsearch, etc.).
+
+### AI tools used
+
+- **OpenAI Codex** — used to establish the initial architecture: set the stack, designed the DB schema, and generated the first scaffolding commit. Codex provided the commit-by-feature plan that drove the development sequence.
+- **Claude Code (Anthropic)** — used for all feature implementation commits after the scaffold. Each feature (auth, tweets, timeline, likes, follows, profiles, search) was implemented incrementally with Claude Code, reviewing and adjusting output at each step.
