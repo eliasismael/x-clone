@@ -30,7 +30,7 @@ export async function createTweetAction(
     return {
       ok: false,
       fieldErrors: {
-        content: parsed.error.flatten().fieldErrors.content?.[0],
+        content: parsed.error.flatten((i) => i.message).fieldErrors.content?.[0],
       },
     };
   }
@@ -67,6 +67,31 @@ export async function deleteTweetAction(tweetId: string): Promise<void> {
   }
 
   await db.tweet.delete({ where: { id: tweetId } });
+
+  revalidatePath("/home");
+}
+
+export async function toggleLikeAction(tweetId: string): Promise<void> {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    redirect("/login");
+  }
+
+  const existing = await db.like.findUnique({
+    where: { userId_tweetId: { userId: currentUser.id, tweetId } },
+    select: { userId: true },
+  });
+
+  if (existing) {
+    await db.like.delete({
+      where: { userId_tweetId: { userId: currentUser.id, tweetId } },
+    });
+  } else {
+    await db.like.create({
+      data: { userId: currentUser.id, tweetId },
+    });
+  }
 
   revalidatePath("/home");
 }

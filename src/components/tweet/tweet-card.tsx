@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { deleteTweetAction } from "@/app/(app)/home/actions";
 import { buildAvatarUrl } from "@/lib/avatar";
-import { formatCount, formatRelativeTime } from "@/lib/utils";
+import { formatRelativeTime } from "@/lib/utils";
+import { LikeButton } from "@/components/tweet/like-button";
 
 export type TweetCardData = {
   id: string;
@@ -73,8 +74,12 @@ export function TweetCard({ tweet, currentUserId }: TweetCardProps) {
             {tweet.content}
           </p>
 
-          <div className="mt-3 flex items-center gap-4 text-sm text-slate-500">
-            <span>{formatCount(tweet._count.likes)} likes</span>
+          <div className="mt-3 flex items-center gap-4">
+            <LikeButton
+              tweetId={tweet.id}
+              likeCount={tweet._count.likes}
+              isLiked={tweet.likes?.some((l) => l.userId === currentUserId) ?? false}
+            />
           </div>
         </div>
       </div>
