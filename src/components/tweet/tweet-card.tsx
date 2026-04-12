@@ -1,0 +1,83 @@
+import Image from "next/image";
+import Link from "next/link";
+import { deleteTweetAction } from "@/app/(app)/home/actions";
+import { buildAvatarUrl } from "@/lib/avatar";
+import { formatCount, formatRelativeTime } from "@/lib/utils";
+
+export type TweetCardData = {
+  id: string;
+  content: string;
+  createdAt: Date;
+  author: {
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl: string | null;
+  };
+  _count: {
+    likes: number;
+  };
+  likes?: { userId: string }[];
+};
+
+type TweetCardProps = {
+  tweet: TweetCardData;
+  currentUserId: string;
+};
+
+export function TweetCard({ tweet, currentUserId }: TweetCardProps) {
+  const isOwnTweet = tweet.author.id === currentUserId;
+  const avatarSrc = tweet.author.avatarUrl ?? buildAvatarUrl(tweet.author.username);
+  const deleteAction = deleteTweetAction.bind(null, tweet.id);
+
+  return (
+    <article className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-start gap-3">
+        <Link href={`/users/${tweet.author.username}`} className="shrink-0">
+          <Image
+            src={avatarSrc}
+            alt={`${tweet.author.displayName} avatar`}
+            width={44}
+            height={44}
+            className="size-11 rounded-full border border-slate-200 bg-slate-50"
+          />
+        </Link>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <Link
+                href={`/users/${tweet.author.username}`}
+                className="truncate text-sm font-semibold text-slate-950 hover:underline"
+              >
+                {tweet.author.displayName}
+              </Link>
+              <p className="truncate text-sm text-slate-500">
+                @{tweet.author.username} · {formatRelativeTime(tweet.createdAt)}
+              </p>
+            </div>
+
+            {isOwnTweet && (
+              <form action={deleteAction}>
+                <button
+                  type="submit"
+                  className="shrink-0 rounded-full px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                >
+                  Delete
+                </button>
+              </form>
+            )}
+          </div>
+
+          <p className="mt-2 text-sm leading-7 text-slate-700 whitespace-pre-wrap break-words">
+            {tweet.content}
+          </p>
+
+          <div className="mt-3 flex items-center gap-4 text-sm text-slate-500">
+            <span>{formatCount(tweet._count.likes)} likes</span>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
