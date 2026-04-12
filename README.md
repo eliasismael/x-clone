@@ -85,6 +85,22 @@ All 10 seed users share the same password. The seed creates cross-follows and cr
 | `AUTH_SECRET` | Secret used to sign session tokens | Any long random string |
 | `APP_URL` | Public base URL of the app | `http://localhost:3000` |
 
+### Running with Docker (full stack)
+
+Requires Docker with the Compose plugin.
+
+```bash
+# Build and start both Postgres and the Next.js app
+docker compose up --build
+
+# In a separate terminal, seed the database
+docker compose exec app npm run db:seed
+```
+
+The app is available at **http://localhost:3000**. The schema is applied automatically on startup via `prisma db push`.
+
+---
+
 ### Running tests
 
 ```bash

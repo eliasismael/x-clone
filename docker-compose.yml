@@ -11,6 +11,30 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: x-clone-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/x_clone?schema=public
+      AUTH_SECRET: docker-local-secret-change-in-production
+      APP_URL: http://localhost:3000
+      NODE_ENV: production
+    volumes:
+      # Persist uploaded avatars across container restarts
+      - uploads:/app/public/uploads
 
 volumes:
   postgres_data:
+  uploads:
