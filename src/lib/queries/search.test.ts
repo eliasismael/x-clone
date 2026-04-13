@@ -56,7 +56,7 @@ describe("searchUsers", () => {
 
   it("returns matched users from the database", async () => {
     const users = [makeUser({ id: "u1", username: "alice" })];
-    mockFindMany.mockResolvedValue(users);
+    mockFindMany.mockResolvedValue(users as never);
 
     const result = await searchUsers("alice", "current-user");
 

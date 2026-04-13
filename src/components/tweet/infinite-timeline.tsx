@@ -21,7 +21,9 @@ export function InfiniteTimeline({
   const [isPending, startTransition] = useTransition();
   const sentinelRef = useRef<HTMLDivElement>(null);
 
+  // Sync server-provided data into local state after a revalidation (RSC re-render)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTweets(initialTweets);
     setCursor(initialCursor);
   }, [initialTweets, initialCursor]);
@@ -77,7 +79,7 @@ export function InfiniteTimeline({
       )}
 
       {!cursor && tweets.length > 0 && (
-        <p className="py-4 text-center text-xs text-slate-400">You've reached the end</p>
+        <p className="py-4 text-center text-xs text-slate-400">You&apos;ve reached the end</p>
       )}
     </div>
   );

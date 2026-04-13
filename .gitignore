@@ -44,3 +44,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local uploads (dev only — use object storage in production)
+/public/uploads/
+
+# claude code
+.claude/

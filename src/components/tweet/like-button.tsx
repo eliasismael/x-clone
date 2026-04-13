@@ -14,7 +14,7 @@ export function LikeButton({ tweetId, likeCount, isLiked }: LikeButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [optimisticState, setOptimistic] = useOptimistic(
     { likeCount, isLiked },
-    (current, _action: "toggle") => ({
+    (current) => ({
       likeCount: current.isLiked ? current.likeCount - 1 : current.likeCount + 1,
       isLiked: !current.isLiked,
     }),

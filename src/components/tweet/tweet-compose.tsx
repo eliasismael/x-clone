@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
+import Image from "next/image";
 import { createTweetAction, type CreateTweetActionState } from "@/app/(app)/home/actions";
 
 const MAX_LENGTH = 280;
@@ -32,8 +33,10 @@ export function TweetCompose({ avatarSrc, displayName }: TweetComposeProps) {
     null,
   );
 
+  // Clear the textarea after a successful submission
   useEffect(() => {
     if (state && "ok" in state && state.ok) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setContent("");
     }
   }, [state]);
@@ -46,9 +49,11 @@ export function TweetCompose({ avatarSrc, displayName }: TweetComposeProps) {
     <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
       <form action={formAction}>
         <div className="flex items-start gap-3">
-          <img
+          <Image
             src={avatarSrc}
             alt={`${displayName} avatar`}
+            width={40}
+            height={40}
             className="size-10 shrink-0 rounded-full border border-slate-200 bg-slate-50"
           />
           <div className="flex-1">

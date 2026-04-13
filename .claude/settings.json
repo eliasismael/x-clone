@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(ls c:/Users/Elías/Desktop/dev/x-clone-codex/*.md)",
-      "Bash(ls c:/Users/Elías/Desktop/dev/x-clone-codex/.env*)",
-      "Bash(ls c:/Users/Elías/Desktop/dev/x-clone-codex/docker*)"
-    ]
-  }
-}
