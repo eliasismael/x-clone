@@ -40,7 +40,7 @@ A full-stack Twitter/X clone built as a technical challenge. Implements the core
 ```bash
 # 1. Clone the repo
 git clone <repo-url>
-cd x-clone-codex
+cd x-clone
 
 # 2. Install dependencies
 npm install
