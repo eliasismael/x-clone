@@ -21,26 +21,22 @@ export function FollowStats({
 
   return (
     <>
-      <div className="flex gap-6">
-        <button
-          type="button"
-          onClick={() => setOpen("followers")}
-          className="flex items-baseline gap-1.5 transition hover:opacity-75"
-        >
-          <span className="text-sm font-semibold text-slate-950">
-            {formatCount(followerCount)}
-          </span>
-          <span className="text-sm text-slate-500">Followers</span>
-        </button>
+      <div className="flex gap-5 text-[14px] leading-4">
         <button
           type="button"
           onClick={() => setOpen("following")}
-          className="flex items-baseline gap-1.5 transition hover:opacity-75"
+          className="flex items-baseline gap-1 hover:underline"
         >
-          <span className="text-sm font-semibold text-slate-950">
-            {formatCount(followingCount)}
-          </span>
-          <span className="text-sm text-slate-500">Following</span>
+          <span className="font-bold text-x-text">{formatCount(followingCount)}</span>
+          <span className="text-x-muted">Following</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen("followers")}
+          className="flex items-baseline gap-1 hover:underline"
+        >
+          <span className="font-bold text-x-text">{formatCount(followerCount)}</span>
+          <span className="text-x-muted">{followerCount === 1 ? "Follower" : "Followers"}</span>
         </button>
       </div>
 

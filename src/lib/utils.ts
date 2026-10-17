@@ -17,3 +17,10 @@ export function formatRelativeTime(date: Date | string): string {
 
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(d);
 }
+
+// "Joined March 2024", as shown on X profiles
+export function formatJoinedDate(date: Date | string): string {
+  return new Intl.DateTimeFormat("en", { month: "long", year: "numeric", timeZone: "UTC" }).format(
+    new Date(date),
+  );
+}

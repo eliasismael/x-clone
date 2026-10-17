@@ -1,10 +1,9 @@
-import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
-import { buildAvatarUrl } from "@/lib/avatar";
 import { FollowButton } from "@/components/user/follow-button";
-import { FollowStats } from "@/components/profile/follow-stats";
+import { ProfileEmptyState, ProfileHeader } from "@/components/profile/profile-header";
 import { TweetCard } from "@/components/tweet/tweet-card";
 
 const userSelect = {
@@ -30,7 +29,8 @@ export default async function UserProfilePage({
       displayName: true,
       bio: true,
       avatarUrl: true,
-      _count: { select: { followers: true, following: true } },
+      createdAt: true,
+      _count: { select: { followers: true, following: true, tweets: true } },
       // Full follower list for modal + isFollowing check
       followers: {
         select: { follower: { select: userSelect } },
@@ -69,63 +69,50 @@ export default async function UserProfilePage({
 
   const isSelf = currentUser?.id === user.id;
   const isFollowing = user.followers.some((f) => f.follower.id === currentUser?.id);
-  const avatarSrc = user.avatarUrl ?? buildAvatarUrl(user.username);
 
   const followerUsers = user.followers.map((f) => f.follower);
   const followingUsers = user.following.map((f) => f.following);
 
+  let action = null;
+  if (isSelf) {
+    action = (
+      <Link
+        href="/profile"
+        className="flex h-9 shrink-0 items-center rounded-full border border-x-banner px-4 text-[15px] font-bold transition-colors hover:bg-x-hover"
+      >
+        Edit profile
+      </Link>
+    );
+  } else if (currentUser) {
+    action = <FollowButton targetUserId={user.id} isFollowing={isFollowing} />;
+  }
+
   return (
-    <div className="min-h-screen bg-white/70 px-4 py-6 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-2xl space-y-5">
-        {/* Profile header */}
-        <section className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-sm">
-          <div className="h-32 bg-[linear-gradient(135deg,#0f172a_0%,#0369a1_100%)]" />
-          <div className="px-6 pb-6">
-            <div className="-mt-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <Image
-                src={avatarSrc}
-                alt={`${user.displayName} avatar`}
-                width={96}
-                height={96}
-                className="size-24 rounded-full border-4 border-white bg-white shadow-sm"
-              />
-              {!isSelf && currentUser && (
-                <FollowButton targetUserId={user.id} isFollowing={isFollowing} />
-              )}
-            </div>
+    <>
+      <ProfileHeader
+        user={user}
+        tweetCount={user._count.tweets}
+        followerCount={user._count.followers}
+        followingCount={user._count.following}
+        followers={followerUsers}
+        following={followingUsers}
+        action={action}
+      />
 
-            <div className="mt-4">
-              <h1 className="text-2xl font-semibold text-slate-950">{user.displayName}</h1>
-              <p className="mt-1 text-sm text-slate-500">@{user.username}</p>
-              {user.bio && (
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-700">{user.bio}</p>
-              )}
-            </div>
-
-            <div className="mt-4">
-              <FollowStats
-                followerCount={user._count.followers}
-                followingCount={user._count.following}
-                followers={followerUsers}
-                following={followingUsers}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Tweets */}
-        {tweets.length === 0 ? (
-          <p className="py-10 text-center text-sm text-slate-400">No tweets yet.</p>
-        ) : (
-          <ul className="space-y-4">
-            {tweets.map((tweet) => (
-              <li key={tweet.id}>
-                <TweetCard tweet={tweet} currentUserId={currentUser?.id ?? ""} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
+      {tweets.length === 0 ? (
+        <ProfileEmptyState
+          title={`@${user.username} hasn't posted`}
+          description="When they do, their posts will show up here."
+        />
+      ) : (
+        <ul>
+          {tweets.map((tweet) => (
+            <li key={tweet.id}>
+              <TweetCard tweet={tweet} currentUserId={currentUser?.id ?? ""} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   );
 }

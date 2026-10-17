@@ -114,4 +114,10 @@ describe("FollowStats", () => {
     fireEvent.click(screen.getByRole("button", { name: /followers/i }));
     expect(screen.getByText(/no users yet/i)).toBeInTheDocument();
   });
+
+  it("uses the singular label for a single follower", () => {
+    renderStats({ followerCount: 1 });
+    expect(screen.getByRole("button", { name: /follower/i })).toHaveTextContent("1Follower");
+    expect(screen.getByRole("button", { name: /follower/i })).not.toHaveTextContent("Followers");
+  });
 });

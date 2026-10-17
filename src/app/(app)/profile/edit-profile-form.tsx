@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useActionState } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
+import { Avatar } from "@/components/ui/avatar";
+import { CameraIcon, CloseIcon } from "@/components/ui/icons";
+import { TextField } from "@/components/ui/text-field";
+import { useDismiss } from "@/components/ui/use-dismiss";
 import { updateProfileAction, type UpdateProfileActionState } from "./actions";
 
 const initialState: UpdateProfileActionState = {};
@@ -14,122 +17,133 @@ function SaveButton() {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-12 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+      className="h-8 rounded-full bg-x-inverse-bg px-4 text-[14px] font-bold text-x-inverse-text transition-opacity hover:opacity-90 disabled:opacity-50"
     >
-      {pending ? "Saving..." : "Save profile"}
+      {pending ? "Saving..." : "Save"}
     </button>
   );
 }
 
 type EditProfileFormProps = {
-  displayName: string;
-  username: string;
-  bio: string | null;
+  user: { username: string; displayName: string; avatarUrl: string | null; bio: string | null };
 };
 
-export function EditProfileForm({ displayName, username, bio }: EditProfileFormProps) {
+export function EditProfileForm({ user }: EditProfileFormProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [state, formAction] = useActionState(updateProfileAction, initialState);
+  const panelRef = useRef<HTMLFormElement>(null);
+  const closeModal = useCallback(() => setIsOpen(false), []);
+
+  useDismiss(panelRef, isOpen, closeModal);
+
+  // Release the object URL of the previous avatar preview
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    setPreviewUrl(file ? URL.createObjectURL(file) : null);
+  }
 
   return (
     <>
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+        className="h-9 shrink-0 rounded-full border border-x-banner px-4 text-[15px] font-bold transition-colors hover:bg-x-hover"
       >
         Edit profile
       </button>
 
       {isOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 py-6 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.55)] sm:p-8">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-semibold text-slate-950">Edit profile</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Update your public identity and upload a profile picture for your account.
-                </p>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-x-backdrop sm:pt-[5vh]">
+          <form
+            ref={panelRef}
+            action={formAction}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-profile-title"
+            className="flex h-full w-full max-w-[600px] flex-col overflow-hidden bg-x-bg sm:h-auto sm:max-h-[90vh] sm:rounded-2xl"
+          >
+            <div className="flex h-[53px] shrink-0 items-center gap-8 px-2">
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
-                className="rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
+                onClick={closeModal}
+                aria-label="Close"
+                className="flex size-9 items-center justify-center rounded-full transition-colors hover:bg-x-hover"
               >
-                Close
+                <CloseIcon className="size-5" strokeWidth={2} />
               </button>
-            </div>
-
-            <form action={formAction} className="mt-6 grid gap-4">
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Display name</span>
-                <input
-                  name="displayName"
-                  defaultValue={displayName}
-                  className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-950 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-                />
-                {state.fieldErrors?.displayName ? (
-                  <span className="text-sm font-normal text-rose-600">{state.fieldErrors.displayName}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Username</span>
-                <input
-                  name="username"
-                  defaultValue={username}
-                  className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-950 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-                />
-                {state.fieldErrors?.username ? (
-                  <span className="text-sm font-normal text-rose-600">{state.fieldErrors.username}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Bio</span>
-                <textarea
-                  name="bio"
-                  rows={4}
-                  defaultValue={bio ?? ""}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-                />
-                {state.fieldErrors?.bio ? (
-                  <span className="text-sm font-normal text-rose-600">{state.fieldErrors.bio}</span>
-                ) : null}
-              </label>
-
-              <label className="grid gap-2 text-sm font-medium text-slate-700">
-                <span>Avatar</span>
-                <input
-                  name="avatar"
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-700"
-                />
-                <span className="text-xs text-slate-500">PNG, JPG, or WebP up to 2 MB.</span>
-                {state.fieldErrors?.avatar ? (
-                  <span className="text-sm font-normal text-rose-600">{state.fieldErrors.avatar}</span>
-                ) : null}
-              </label>
-
-              {state.formError ? (
-                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                  {state.formError}
-                </div>
-              ) : null}
-
-              <div className="flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
+              <h2 id="edit-profile-title" className="flex-1 text-xl font-bold">
+                Edit profile
+              </h2>
+              <div className="pr-2">
                 <SaveButton />
               </div>
-            </form>
-          </div>
+            </div>
+
+            <div className="overflow-y-auto">
+              <div className="aspect-[3/1] bg-x-banner" />
+
+              <div className="px-4">
+                <label className="group relative -mt-12 block size-[112px] cursor-pointer overflow-hidden rounded-full border-4 border-x-bg bg-x-bg">
+                  <span className="sr-only">Change avatar</span>
+                  {previewUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={previewUrl} alt="" className="size-full rounded-full object-cover" />
+                  ) : (
+                    <Avatar user={user} size={104} fluid />
+                  )}
+                  <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 text-white transition-colors group-hover:bg-black/40">
+                    <CameraIcon className="size-[22px]" />
+                  </span>
+                  <input
+                    name="avatar"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={handleAvatarChange}
+                    className="sr-only"
+                  />
+                </label>
+                <p className="mt-2 text-[13px] text-x-muted">PNG, JPG, or WebP up to 2 MB.</p>
+                {state.fieldErrors?.avatar ? (
+                  <p className="mt-1 text-[13px] text-x-red">{state.fieldErrors.avatar}</p>
+                ) : null}
+              </div>
+
+              <div className="grid gap-6 px-4 pt-4 pb-6">
+                <TextField
+                  label="Name"
+                  name="displayName"
+                  defaultValue={user.displayName}
+                  error={state.fieldErrors?.displayName}
+                />
+                <TextField
+                  label="Username"
+                  name="username"
+                  defaultValue={user.username}
+                  error={state.fieldErrors?.username}
+                />
+                <TextField
+                  label="Bio"
+                  name="bio"
+                  defaultValue={user.bio ?? ""}
+                  error={state.fieldErrors?.bio}
+                  multiline
+                />
+
+                {state.formError ? (
+                  <p role="alert" className="text-[15px] text-x-red">
+                    {state.formError}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </form>
         </div>
       ) : null}
     </>

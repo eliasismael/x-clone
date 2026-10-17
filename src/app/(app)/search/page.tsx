@@ -1,10 +1,13 @@
-import Image from "next/image";
-import Link from "next/link";
+import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/session";
 import { searchUsers } from "@/lib/queries/search";
-import { buildAvatarUrl } from "@/lib/avatar";
+import { SearchBox } from "@/components/search/search-box";
 import { FollowButton } from "@/components/user/follow-button";
-import { UserSearchInput } from "@/components/search/user-search-input";
+import { UserCell } from "@/components/user/user-cell";
+
+export const metadata: Metadata = {
+  title: "Explore",
+};
 
 export default async function SearchPage({
   searchParams,
@@ -14,58 +17,42 @@ export default async function SearchPage({
   const { q = "" } = await searchParams;
   const currentUser = await getCurrentUser();
   const users = await searchUsers(q, currentUser!.id);
+  const query = q.trim();
 
   return (
-    <div className="min-h-screen bg-white/70 px-4 py-6 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-2xl space-y-5">
-        <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold text-slate-950">Search users</h2>
-          <UserSearchInput defaultValue={q} />
-        </div>
+    <>
+      <header className="sticky top-0 z-20 bg-x-header px-4 py-1.5 backdrop-blur-md">
+        <SearchBox defaultValue={q} autoFocus />
+      </header>
 
-        {q.trim() === "" ? (
-          <p className="py-10 text-center text-sm text-slate-400">
-            Type a name or username to search.
-          </p>
-        ) : users.length === 0 ? (
-          <p className="py-10 text-center text-sm text-slate-400">
-            No users found for &ldquo;{q}&rdquo;.
-          </p>
-        ) : (
-          <div className="rounded-[28px] border border-slate-200 bg-white shadow-sm">
-            <ul className="divide-y divide-slate-100">
-              {users.map((user) => {
-                const avatarSrc = user.avatarUrl ?? buildAvatarUrl(user.username);
-                const isFollowing = user.followers.length > 0;
+      {query === "" ? (
+        <EmptyState title="Search for people" description="Find someone by their name or username." />
+      ) : users.length === 0 ? (
+        <EmptyState title={`No results for "${query}"`} description="Try searching for something else." />
+      ) : (
+        <section className="border-t border-x-border">
+          <h2 className="px-4 py-3 text-xl leading-6 font-extrabold">People</h2>
+          <ul>
+            {users.map((user) => (
+              <li key={user.id}>
+                <UserCell
+                  user={user}
+                  action={<FollowButton targetUserId={user.id} isFollowing={user.followers.length > 0} />}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </>
+  );
+}
 
-                return (
-                  <li key={user.id} className="flex items-center gap-3 px-5 py-4">
-                    <Link href={`/users/${user.username}`} className="shrink-0">
-                      <Image
-                        src={avatarSrc}
-                        alt={`${user.displayName} avatar`}
-                        width={44}
-                        height={44}
-                        className="size-11 rounded-full border border-slate-200 bg-slate-50"
-                      />
-                    </Link>
-                    <div className="min-w-0 flex-1">
-                      <Link
-                        href={`/users/${user.username}`}
-                        className="block truncate text-sm font-semibold text-slate-950 hover:underline"
-                      >
-                        {user.displayName}
-                      </Link>
-                      <p className="truncate text-xs text-slate-500">@{user.username}</p>
-                    </div>
-                    <FollowButton targetUserId={user.id} isFollowing={isFollowing} />
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        )}
-      </div>
+function EmptyState({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="mx-auto max-w-[400px] px-8 py-10">
+      <h2 className="text-[31px] leading-9 font-extrabold break-words">{title}</h2>
+      <p className="mt-2 text-[15px] leading-5 text-x-muted">{description}</p>
     </div>
   );
 }

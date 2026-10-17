@@ -1,4 +1,4 @@
-import { formatCount, formatRelativeTime } from "@/lib/utils";
+import { formatCount, formatJoinedDate, formatRelativeTime } from "@/lib/utils";
 import { describe, expect, it } from "vitest";
 
 describe("formatCount", () => {
@@ -44,5 +44,19 @@ describe("formatRelativeTime", () => {
   it("accepts a string date", () => {
     const result = formatRelativeTime(ago(45).toISOString());
     expect(result).toBe("45s");
+  });
+});
+
+describe("formatJoinedDate", () => {
+  it("formats the month and year", () => {
+    expect(formatJoinedDate(new Date("2024-03-15T10:00:00Z"))).toBe("March 2024");
+  });
+
+  it("accepts ISO strings", () => {
+    expect(formatJoinedDate("2025-12-01T00:00:00Z")).toBe("December 2025");
+  });
+
+  it("uses UTC so the month does not shift with the server time zone", () => {
+    expect(formatJoinedDate("2024-01-01T00:30:00Z")).toBe("January 2024");
   });
 });

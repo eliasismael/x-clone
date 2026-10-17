@@ -19,6 +19,7 @@ function makeUser(overrides: Partial<{ id: string; username: string; displayName
     username: overrides.username ?? "alice",
     displayName: overrides.displayName ?? "Alice",
     avatarUrl: null,
+    bio: null,
     followers: [],
   };
 }
@@ -80,5 +81,14 @@ describe("searchUsers", () => {
 
     const call = mockFindMany.mock.calls[0][0] as { select: { followers: { where: { followerId: string } } } };
     expect(call.select.followers.where.followerId).toBe("current-user");
+  });
+
+  it("selects the bio so results can show it like X's people list", async () => {
+    mockFindMany.mockResolvedValue([]);
+
+    await searchUsers("alice", "current-user");
+
+    const call = mockFindMany.mock.calls[0][0] as { select: { bio?: boolean } };
+    expect(call.select.bio).toBe(true);
   });
 });

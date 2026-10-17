@@ -5,6 +5,7 @@ export type SearchUser = {
   username: string;
   displayName: string;
   avatarUrl: string | null;
+  bio: string | null;
   followers: { followerId: string }[];
 };
 
@@ -32,6 +33,7 @@ export async function searchUsers(
       username: true,
       displayName: true,
       avatarUrl: true,
+      bio: true,
       followers: {
         where: { followerId: currentUserId },
         select: { followerId: true },
