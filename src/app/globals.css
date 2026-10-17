@@ -1,16 +1,67 @@
 @import "tailwindcss";
 
+/* X (Twitter) palette — light by default, "Lights out" when the OS prefers dark. */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --app-bg: #f8fafc;
+  --x-bg: #ffffff;
+  --x-text: #0f1419;
+  --x-muted: #536471;
+  --x-border: #eff3f4;
+  --x-surface: #f7f9f9;
+  --x-input: #eff3f4;
+  --x-hover: rgba(15, 20, 25, 0.1);
+  --x-row-hover: rgba(0, 0, 0, 0.03);
+  --x-header: rgba(255, 255, 255, 0.85);
+  --x-backdrop: rgba(0, 0, 0, 0.4);
+  --x-inverse-bg: #0f1419;
+  --x-inverse-text: #ffffff;
+  --x-blue: #1d9bf0;
+  --x-blue-hover: #1a8cd8;
+  --x-pink: #f91880;
+  --x-red: #f4212e;
+  --x-banner: #cfd9de;
+  --x-shadow: rgba(101, 119, 134, 0.2) 0 0 15px, rgba(101, 119, 134, 0.15) 0 0 3px 1px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --x-bg: #000000;
+    --x-text: #e7e9ea;
+    --x-muted: #71767b;
+    --x-border: #2f3336;
+    --x-surface: #16181c;
+    --x-input: #202327;
+    --x-hover: rgba(231, 233, 234, 0.1);
+    --x-row-hover: rgba(255, 255, 255, 0.03);
+    --x-header: rgba(0, 0, 0, 0.65);
+    --x-backdrop: rgba(91, 112, 131, 0.4);
+    --x-inverse-bg: #eff3f4;
+    --x-inverse-text: #0f1419;
+    --x-banner: #333639;
+    --x-shadow: rgba(255, 255, 255, 0.2) 0 0 15px, rgba(255, 255, 255, 0.15) 0 0 3px 1px;
+  }
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-x-bg: var(--x-bg);
+  --color-x-text: var(--x-text);
+  --color-x-muted: var(--x-muted);
+  --color-x-border: var(--x-border);
+  --color-x-surface: var(--x-surface);
+  --color-x-input: var(--x-input);
+  --color-x-hover: var(--x-hover);
+  --color-x-row-hover: var(--x-row-hover);
+  --color-x-header: var(--x-header);
+  --color-x-backdrop: var(--x-backdrop);
+  --color-x-inverse-bg: var(--x-inverse-bg);
+  --color-x-inverse-text: var(--x-inverse-text);
+  --color-x-blue: var(--x-blue);
+  --color-x-blue-hover: var(--x-blue-hover);
+  --color-x-pink: var(--x-pink);
+  --color-x-red: var(--x-red);
+  --color-x-banner: var(--x-banner);
+  --shadow-x-popover: var(--x-shadow);
+  /* Same fallback stack X uses after its proprietary Chirp font */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -18,13 +69,13 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  color-scheme: light dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), sans-serif;
+  background: var(--x-bg);
+  color: var(--x-text);
+  font-family: var(--font-sans);
 }
 
 a {
@@ -36,6 +87,10 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: default;
+}
+
 ::selection {
-  background: rgba(14, 165, 233, 0.18);
+  background: rgba(29, 155, 240, 0.25);
 }

@@ -2,24 +2,24 @@
 
 import { useFormStatus } from "react-dom";
 
-function SubmitButton() {
+function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
 
   return (
     <button
       type="submit"
-      className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+      className="w-full px-4 py-3 text-left text-[15px] font-bold transition-colors hover:bg-x-row-hover disabled:opacity-60"
       disabled={pending}
     >
-      {pending ? "Signing out..." : "Sign out"}
+      {pending ? "Logging out..." : label}
     </button>
   );
 }
 
-export function LogoutButton({ action }: { action: () => Promise<void> }) {
+export function LogoutButton({ action, label }: { action: () => Promise<void>; label: string }) {
   return (
     <form action={action}>
-      <SubmitButton />
+      <SubmitButton label={label} />
     </form>
   );
 }

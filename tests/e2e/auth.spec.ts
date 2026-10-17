@@ -16,10 +16,12 @@ test("user can register, sign out, and sign back in", async ({ page }) => {
   await page.getByRole("button", { name: "Create account" }).click();
 
   await expect(page).toHaveURL(/\/home$/);
-  await expect(page.getByText("Signed in as")).toContainText("Elias Pereyra");
-  await expect(page.getByText(`@${username}`).first()).toBeVisible();
+  const accountMenu = page.getByRole("button", { name: "Account menu" }).first();
+  await expect(accountMenu).toContainText("Elias Pereyra");
+  await expect(accountMenu).toContainText(`@${username}`);
 
-  await page.getByRole("button", { name: "Sign out" }).click();
+  await accountMenu.click();
+  await page.getByRole("button", { name: `Log out @${username}` }).click();
   await expect(page).toHaveURL(/\/login$/);
 
   await page.getByLabel("Email").fill(email);

@@ -74,4 +74,37 @@ describe("FollowButton", () => {
       expect(screen.getByRole("button")).toHaveTextContent("Following"),
     );
   });
+
+  it("shows Unfollow while hovering a followed user", () => {
+    render(<FollowButton targetUserId="user-2" isFollowing={true} />);
+    const button = screen.getByRole("button");
+
+    fireEvent.mouseEnter(button);
+    expect(button).toHaveTextContent("Unfollow");
+
+    fireEvent.mouseLeave(button);
+    expect(button).toHaveTextContent("Following");
+  });
+
+  it("keeps showing Follow while hovering a user that is not followed", () => {
+    render(<FollowButton targetUserId="user-2" isFollowing={false} />);
+    const button = screen.getByRole("button");
+
+    fireEvent.mouseEnter(button);
+    expect(button).toHaveTextContent("Follow");
+    expect(button).not.toHaveTextContent("Unfollow");
+  });
+
+  it("shows Following, not Unfollow, right after following while still hovered", () => {
+    mockToggle.mockImplementation(() => new Promise(() => {}));
+
+    render(<FollowButton targetUserId="user-2" isFollowing={false} />);
+    const button = screen.getByRole("button");
+
+    fireEvent.mouseEnter(button);
+    fireEvent.click(button);
+
+    expect(button).toHaveTextContent("Following");
+    expect(button).not.toHaveTextContent("Unfollow");
+  });
 });

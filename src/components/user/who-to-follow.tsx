@@ -24,9 +24,9 @@ export async function WhoToFollow({ currentUserId }: WhoToFollowProps) {
   if (suggestions.length === 0) return null;
 
   return (
-    <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-sm font-semibold text-slate-950">Who to follow</h2>
+    <section className="overflow-hidden rounded-2xl border border-x-border">
+      <h2 className="px-4 py-3 text-xl leading-6 font-extrabold">Who to follow</h2>
       <WhoToFollowList initialUsers={suggestions} />
-    </div>
+    </section>
   );
 }
