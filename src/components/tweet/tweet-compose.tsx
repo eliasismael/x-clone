@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
-import Image from "next/image";
 import { createTweetAction, type CreateTweetActionState } from "@/app/(app)/home/actions";
+import { CharCounter } from "@/components/tweet/char-counter";
+import { Avatar } from "@/components/ui/avatar";
 
 const MAX_LENGTH = 280;
 
@@ -14,7 +15,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
     <button
       type="submit"
       disabled={pending || disabled}
-      className="rounded-full bg-slate-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+      className="h-9 rounded-full bg-x-inverse-bg px-4 text-[15px] font-bold text-x-inverse-text transition-opacity hover:opacity-90 disabled:opacity-50"
     >
       {pending ? "Posting..." : "Post"}
     </button>
@@ -22,73 +23,72 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 }
 
 type TweetComposeProps = {
-  avatarSrc: string;
-  displayName: string;
+  user: { username: string; displayName: string; avatarUrl: string | null };
+  autoFocus?: boolean;
+  onPosted?: () => void;
 };
 
-export function TweetCompose({ avatarSrc, displayName }: TweetComposeProps) {
+export function TweetCompose({ user, autoFocus = false, onPosted }: TweetComposeProps) {
   const [content, setContent] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [state, formAction] = useActionState<CreateTweetActionState, FormData>(
     createTweetAction,
     null,
   );
+
+  // Kept in a ref so a new callback identity doesn't re-run the success effect
+  const onPostedRef = useRef(onPosted);
+  useEffect(() => {
+    onPostedRef.current = onPosted;
+  });
 
   // Clear the textarea after a successful submission
   useEffect(() => {
     if (state && "ok" in state && state.ok) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setContent("");
+      onPostedRef.current?.();
     }
   }, [state]);
 
-  const remaining = MAX_LENGTH - content.length;
-  const isOverLimit = remaining < 0;
+  // Grow the textarea with its content, like X's composer
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, [content]);
+
+  const isOverLimit = content.length > MAX_LENGTH;
   const isEmpty = content.trim().length === 0;
 
   return (
-    <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-      <form action={formAction}>
-        <div className="flex items-start gap-3">
-          <Image
-            src={avatarSrc}
-            alt={`${displayName} avatar`}
-            width={40}
-            height={40}
-            className="size-10 shrink-0 rounded-full border border-slate-200 bg-slate-50"
-          />
-          <div className="flex-1">
-            <textarea
-              name="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="What's happening?"
-              rows={3}
-              className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100"
-            />
-            {state && !state.ok && state.fieldErrors?.content && (
-              <p className="mt-1 text-xs text-rose-600">{state.fieldErrors.content}</p>
-            )}
-            {state && !state.ok && state.formError && (
-              <p className="mt-1 text-xs text-rose-600">{state.formError}</p>
-            )}
-          </div>
-        </div>
+    <form action={formAction} className="flex gap-3 px-4 pt-1 pb-2">
+      <Avatar user={user} size={40} className="mt-3" />
+      <div className="min-w-0 flex-1">
+        <textarea
+          ref={textareaRef}
+          name="content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="What's happening?"
+          aria-label="Post text"
+          autoFocus={autoFocus}
+          rows={1}
+          className="block w-full resize-none bg-transparent py-3 text-xl leading-6 text-x-text outline-none placeholder:text-x-muted"
+        />
+        {state && !state.ok && state.fieldErrors?.content && (
+          <p className="pb-2 text-[13px] text-x-red">{state.fieldErrors.content}</p>
+        )}
+        {state && !state.ok && state.formError && (
+          <p className="pb-2 text-[13px] text-x-red">{state.formError}</p>
+        )}
 
-        <div className="mt-3 flex items-center justify-end gap-3">
-          <span
-            className={`text-xs font-medium tabular-nums ${
-              isOverLimit
-                ? "text-rose-600"
-                : remaining <= 20
-                  ? "text-amber-600"
-                  : "text-slate-400"
-            }`}
-          >
-            {remaining}
-          </span>
+        <div className="flex items-center justify-end gap-3 border-t border-x-border pt-2">
+          {content.length > 0 && <CharCounter length={content.length} maxLength={MAX_LENGTH} />}
           <SubmitButton disabled={isOverLimit || isEmpty} />
         </div>
-      </form>
-    </section>
+      </div>
+    </form>
   );
 }

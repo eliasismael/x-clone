@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Avatar } from "@/components/ui/avatar";
 import { MoreIcon } from "@/components/ui/icons";
+import { useDismiss } from "@/components/ui/use-dismiss";
 
 type AccountMenuProps = {
   user: { username: string; displayName: string; avatarUrl: string | null };
@@ -16,25 +17,9 @@ export function AccountMenu({ user, logoutAction, variant = "sidebar" }: Account
   const containerRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const isSidebar = variant === "sidebar";
+  const closeMenu = useCallback(() => setIsOpen(false), []);
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    function handlePointerDown(event: MouseEvent) {
-      if (!containerRef.current?.contains(event.target as Node)) setIsOpen(false);
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setIsOpen(false);
-    }
-
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen]);
+  useDismiss(containerRef, isOpen, closeMenu);
 
   return (
     <div ref={containerRef} className="relative">

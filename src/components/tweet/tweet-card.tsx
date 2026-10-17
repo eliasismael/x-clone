@@ -1,10 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { deleteTweetAction } from "@/app/(app)/home/actions";
-import { buildAvatarUrl } from "@/lib/avatar";
 import { formatRelativeTime } from "@/lib/utils";
 import { LikeButton } from "@/components/tweet/like-button";
-import { FollowButton } from "@/components/user/follow-button";
+import { TweetMenu } from "@/components/tweet/tweet-menu";
+import { Avatar } from "@/components/ui/avatar";
 
 export type TweetCardData = {
   id: string;
@@ -31,61 +30,55 @@ type TweetCardProps = {
 export function TweetCard({ tweet, currentUserId }: TweetCardProps) {
   const isOwnTweet = tweet.author.id === currentUserId;
   const isFollowing = tweet.author.followers?.some((f) => f.followerId === currentUserId) ?? false;
-  const avatarSrc = tweet.author.avatarUrl ?? buildAvatarUrl(tweet.author.username);
   const deleteAction = deleteTweetAction.bind(null, tweet.id);
+  const createdAt = new Date(tweet.createdAt);
+  const profileHref = `/users/${tweet.author.username}`;
 
   return (
-    <article className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-start gap-3">
-        <Link href={`/users/${tweet.author.username}`} className="shrink-0">
-          <Image
-            src={avatarSrc}
-            alt={`${tweet.author.displayName} avatar`}
-            width={44}
-            height={44}
-            className="size-11 rounded-full border border-slate-200 bg-slate-50"
-          />
-        </Link>
+    <article className="flex gap-3 border-b border-x-border px-4 pt-3 pb-1 transition-colors hover:bg-x-row-hover">
+      <Link href={profileHref} className="shrink-0">
+        <Avatar user={tweet.author} size={40} />
+      </Link>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <Link
-                href={`/users/${tweet.author.username}`}
-                className="truncate text-sm font-semibold text-slate-950 hover:underline"
-              >
-                {tweet.author.displayName}
-              </Link>
-              <p className="truncate text-sm text-slate-500">
-                @{tweet.author.username} · {formatRelativeTime(tweet.createdAt)}
-              </p>
-            </div>
-
-            {isOwnTweet ? (
-              <form action={deleteAction}>
-                <button
-                  type="submit"
-                  className="shrink-0 rounded-full px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
-                >
-                  Delete
-                </button>
-              </form>
-            ) : (
-              <FollowButton targetUserId={tweet.author.id} isFollowing={isFollowing} />
-            )}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-1 text-[15px] leading-5">
+            <Link href={profileHref} className="truncate font-bold hover:underline">
+              {tweet.author.displayName}
+            </Link>
+            <Link href={profileHref} className="truncate text-x-muted">
+              @{tweet.author.username}
+            </Link>
+            <span aria-hidden="true" className="text-x-muted">
+              ·
+            </span>
+            <time
+              dateTime={createdAt.toISOString()}
+              title={createdAt.toLocaleString("en")}
+              className="shrink-0 text-x-muted"
+            >
+              {formatRelativeTime(createdAt)}
+            </time>
           </div>
 
-          <p className="mt-2 text-sm leading-7 text-slate-700 whitespace-pre-wrap break-words">
-            {tweet.content}
-          </p>
-
-          <div className="mt-3 flex items-center gap-4">
-            <LikeButton
-              tweetId={tweet.id}
-              likeCount={tweet._count.likes}
-              isLiked={tweet.likes?.some((l) => l.userId === currentUserId) ?? false}
+          {currentUserId && (
+            <TweetMenu
+              author={tweet.author}
+              isOwnTweet={isOwnTweet}
+              isFollowing={isFollowing}
+              deleteAction={deleteAction}
             />
-          </div>
+          )}
+        </div>
+
+        <p className="text-[15px] leading-5 break-words whitespace-pre-wrap">{tweet.content}</p>
+
+        <div className="mt-1 flex items-center">
+          <LikeButton
+            tweetId={tweet.id}
+            likeCount={tweet._count.likes}
+            isLiked={tweet.likes?.some((l) => l.userId === currentUserId) ?? false}
+          />
         </div>
       </div>
     </article>
@@ -94,19 +87,16 @@ export function TweetCard({ tweet, currentUserId }: TweetCardProps) {
 
 export function TweetSkeleton() {
   return (
-    <div className="animate-pulse rounded-[28px] border border-slate-100 bg-white/50 p-5 shadow-sm">
-      <div className="flex items-start gap-3">
-        <div className="size-11 shrink-0 rounded-full bg-slate-200" />
-        <div className="min-w-0 flex-1 space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-24 rounded bg-slate-200" />
-            <div className="h-4 w-32 rounded bg-slate-100" />
-          </div>
-          <div className="space-y-2">
-            <div className="h-4 w-full rounded bg-slate-100" />
-            <div className="h-4 w-2/3 rounded bg-slate-100" />
-          </div>
-          <div className="h-4 w-16 rounded bg-slate-100" />
+    <div aria-hidden="true" className="flex animate-pulse gap-3 border-b border-x-border px-4 py-3">
+      <div className="size-10 shrink-0 rounded-full bg-x-surface" />
+      <div className="min-w-0 flex-1 space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-24 rounded-full bg-x-surface" />
+          <div className="h-4 w-32 rounded-full bg-x-surface" />
+        </div>
+        <div className="space-y-2">
+          <div className="h-4 w-full rounded-full bg-x-surface" />
+          <div className="h-4 w-2/3 rounded-full bg-x-surface" />
         </div>
       </div>
     </div>

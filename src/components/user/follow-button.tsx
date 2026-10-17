@@ -8,16 +8,14 @@ type FollowButtonProps = {
   isFollowing: boolean;
 };
 
-export function FollowButton({ targetUserId, isFollowing: initialIsFollowing }: FollowButtonProps) {
+// Optimistic follow state shared by the follow button and the tweet menu
+export function useFollowToggle(targetUserId: string, initialIsFollowing: boolean) {
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
-  // Like X, "Following" turns into a red "Unfollow" only while hovered
-  const [isHovered, setIsHovered] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  function handleClick() {
+  function toggle() {
     const next = !isFollowing;
     setIsFollowing(next);
-    setIsHovered(false);
     startTransition(async () => {
       try {
         await toggleFollowAction(targetUserId);
@@ -25,6 +23,19 @@ export function FollowButton({ targetUserId, isFollowing: initialIsFollowing }: 
         setIsFollowing(!next);
       }
     });
+  }
+
+  return { isFollowing, isPending, toggle };
+}
+
+export function FollowButton({ targetUserId, isFollowing: initialIsFollowing }: FollowButtonProps) {
+  const { isFollowing, isPending, toggle } = useFollowToggle(targetUserId, initialIsFollowing);
+  // Like X, "Following" turns into a red "Unfollow" only while hovered
+  const [isHovered, setIsHovered] = useState(false);
+
+  function handleClick() {
+    setIsHovered(false);
+    toggle();
   }
 
   const showUnfollow = isFollowing && isHovered;

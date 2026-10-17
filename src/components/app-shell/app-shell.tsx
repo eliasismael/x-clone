@@ -2,6 +2,7 @@ import { logoutAction } from "@/app/(app)/actions";
 import { AccountMenu } from "@/components/app-shell/account-menu";
 import { MobileNav, SidebarNav } from "@/components/app-shell/sidebar-nav";
 import { SidebarSearch } from "@/components/search/sidebar-search";
+import { ComposePostButton } from "@/components/tweet/compose-post-button";
 import { XLogo } from "@/components/ui/icons";
 import { WhoToFollow } from "@/components/user/who-to-follow";
 import Link from "next/link";
@@ -17,7 +18,7 @@ export function AppShell({ currentUser, children }: AppShellProps) {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[1265px] justify-center">
       {/* Left column: collapses to icons below xl, replaced by a bottom bar on mobile */}
-      <header className="sticky top-0 hidden h-screen w-[88px] shrink-0 flex-col justify-between overflow-y-auto px-2 sm:flex xl:w-[275px]">
+      <header className="sticky top-0 hidden h-screen w-[88px] shrink-0 flex-col justify-between px-2 sm:flex xl:w-[275px]">
         <div className="flex flex-col items-center xl:items-start">
           <Link
             href="/home"
@@ -27,6 +28,7 @@ export function AppShell({ currentUser, children }: AppShellProps) {
             <XLogo className="size-[30px]" />
           </Link>
           <SidebarNav username={currentUser.username} />
+          <ComposePostButton user={currentUser} variant="sidebar" />
         </div>
         <div className="my-3">
           <AccountMenu user={currentUser} logoutAction={logoutAction} />
@@ -51,6 +53,7 @@ export function AppShell({ currentUser, children }: AppShellProps) {
         </div>
       </aside>
 
+      <ComposePostButton user={currentUser} variant="floating" />
       <MobileNav username={currentUser.username} />
     </div>
   );

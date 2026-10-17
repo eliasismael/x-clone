@@ -53,11 +53,13 @@ export function InfiniteTimeline({
   }, [cursor, isPending]);
 
   return (
-    <div className="space-y-5">
+    <div>
       {tweets.length === 0 && (
-        <div className="rounded-[28px] border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-slate-500">
-            Your timeline is empty. Follow some users to see their tweets here!
+        <div className="mx-auto max-w-[400px] px-8 py-10">
+          <h2 className="text-[31px] leading-9 font-extrabold">Welcome to X Clone!</h2>
+          <p className="mt-2 text-[15px] leading-5 text-x-muted">
+            This is the best place to see what&apos;s happening. Follow some people and their posts
+            will show up here.
           </p>
         </div>
       )}
@@ -67,7 +69,7 @@ export function InfiniteTimeline({
       ))}
 
       {cursor && (
-        <div ref={sentinelRef} className="space-y-5 py-4">
+        <div ref={sentinelRef} className="min-h-4">
           {isPending && (
             <>
               <TweetSkeleton />
@@ -79,7 +81,7 @@ export function InfiniteTimeline({
       )}
 
       {!cursor && tweets.length > 0 && (
-        <p className="py-4 text-center text-xs text-slate-400">You&apos;ve reached the end</p>
+        <p className="py-8 text-center text-[13px] text-x-muted">You&apos;re all caught up</p>
       )}
     </div>
   );
