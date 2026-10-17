@@ -64,33 +64,36 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
+/* Base styles live in a layer so Tailwind utilities can override them */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-html {
-  color-scheme: light dark;
-}
+  html {
+    color-scheme: light dark;
+  }
 
-body {
-  background: var(--x-bg);
-  color: var(--x-text);
-  font-family: var(--font-sans);
-}
+  body {
+    background: var(--x-bg);
+    color: var(--x-text);
+    font-family: var(--font-sans);
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
-button {
-  cursor: pointer;
-}
+  button {
+    cursor: pointer;
+  }
 
-button:disabled {
-  cursor: default;
-}
+  button:disabled {
+    cursor: default;
+  }
 
-::selection {
-  background: rgba(29, 155, 240, 0.25);
+  ::selection {
+    background: rgba(29, 155, 240, 0.25);
+  }
 }

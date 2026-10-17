@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import { AuthFormError, AuthSubmitButton } from "@/components/auth/auth-card";
+import { TextField } from "@/components/ui/text-field";
 import { registerAction, type RegisterActionState } from "./actions";
 
 const initialState: RegisterActionState = {};
@@ -10,115 +12,63 @@ const initialState: RegisterActionState = {};
 function SubmitButton() {
   const { pending } = useFormStatus();
 
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="inline-flex h-12 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-    >
-      {pending ? "Creating account..." : "Create account"}
-    </button>
-  );
-}
-
-type FieldProps = {
-  label: string;
-  name: "displayName" | "username" | "email" | "bio" | "password" | "confirmPassword";
-  type?: string;
-  placeholder: string;
-  error?: string;
-  multiline?: boolean;
-};
-
-function Field({ label, name, type = "text", placeholder, error, multiline = false }: FieldProps) {
-  return (
-    <label className="grid gap-2 text-sm font-medium text-slate-700">
-      <span>{label}</span>
-      {multiline ? (
-        <textarea
-          name={name}
-          placeholder={placeholder}
-          aria-invalid={Boolean(error)}
-          aria-describedby={error ? `${name}-error` : undefined}
-          rows={4}
-          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-        />
-      ) : (
-        <input
-          name={name}
-          type={type}
-          placeholder={placeholder}
-          aria-invalid={Boolean(error)}
-          aria-describedby={error ? `${name}-error` : undefined}
-          className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-        />
-      )}
-      {error ? (
-        <span id={`${name}-error`} className="text-sm font-normal text-rose-600">
-          {error}
-        </span>
-      ) : null}
-    </label>
-  );
+  return <AuthSubmitButton pending={pending} label="Create account" pendingLabel="Creating account..." />;
 }
 
 export function RegisterForm() {
   const [state, formAction] = useActionState(registerAction, initialState);
 
   return (
-    <form action={formAction} className="grid gap-4">
-      <Field
+    <form action={formAction} className="grid gap-5">
+      <TextField
         label="Display name"
         name="displayName"
-        placeholder="Jane Doe"
+        autoComplete="name"
         error={state.fieldErrors?.displayName}
       />
-      <Field
+      <TextField
         label="Username"
         name="username"
-        placeholder="jane_doe"
+        autoComplete="username"
         error={state.fieldErrors?.username}
       />
-      <Field
+      <TextField
         label="Email"
         name="email"
         type="email"
-        placeholder="jane@example.com"
+        autoComplete="email"
         error={state.fieldErrors?.email}
       />
-      <Field
+      <TextField
         label="Bio"
         name="bio"
         placeholder="Tell people a little about yourself"
         error={state.fieldErrors?.bio}
         multiline
       />
-      <Field
+      <TextField
         label="Password"
         name="password"
         type="password"
         placeholder="At least 8 characters"
+        autoComplete="new-password"
         error={state.fieldErrors?.password}
       />
-      <Field
+      <TextField
         label="Confirm password"
         name="confirmPassword"
         type="password"
-        placeholder="Repeat your password"
+        autoComplete="new-password"
         error={state.fieldErrors?.confirmPassword}
       />
 
-      {state.formError ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-          {state.formError}
-        </div>
-      ) : null}
+      <AuthFormError message={state.formError} />
 
       <SubmitButton />
 
-      <p className="text-sm text-slate-500">
-        Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-slate-900 underline decoration-slate-300">
+      <p className="mt-5 text-[15px] text-x-muted">
+        Have an account already?{" "}
+        <Link href="/login" className="text-x-blue hover:underline">
           Sign in
         </Link>
       </p>
