@@ -1,0 +1,15 @@
+# Installed and built inside the image; host copies (often from another OS) must not leak in
+node_modules
+.next
+coverage
+playwright-report
+test-results
+
+# Local secrets and git metadata
+.env*
+!.env.example
+.git
+
+# Runtime uploads live in the compose volume
+public/uploads/avatars/*
+!public/uploads/avatars/.gitkeep
