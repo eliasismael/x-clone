@@ -8,6 +8,13 @@ export function isLocalAvatarUrl(value: string | null | undefined) {
   return Boolean(value?.startsWith("/uploads/avatars/"));
 }
 
+export const BLOB_AVATAR_HOST_SUFFIX = ".public.blob.vercel-storage.com";
+
+export function isBlobAvatarUrl(value: string | null | undefined) {
+  if (!value?.startsWith("https://")) return false;
+  return new URL(value).hostname.endsWith(BLOB_AVATAR_HOST_SUFFIX);
+}
+
 // The Next.js image optimizer rejects SVG responses, so generated avatars
 // (DiceBear serves SVG without a .svg extension) must bypass it.
 export function isVectorAvatarUrl(value: string) {

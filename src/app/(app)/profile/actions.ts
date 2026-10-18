@@ -1,11 +1,10 @@
 "use server";
 
 import { Prisma } from "@prisma/client";
-import { mkdir, unlink, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { buildAvatarUrl, isLocalAvatarUrl } from "@/lib/avatar";
+import { buildAvatarUrl } from "@/lib/avatar";
+import { deleteStoredAvatar, storeAvatar } from "@/lib/avatar-storage";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { editProfileSchema } from "@/lib/validations/auth";
@@ -36,16 +35,13 @@ async function saveAvatar(file: File, userId: string) {
   }
 
   const extension = allowedMimeTypes.get(file.type);
-  const buffer = Buffer.from(await file.arrayBuffer());
   const fileName = `${userId}-${Date.now()}.${extension}`;
-  const relativePath = `/uploads/avatars/${fileName}`;
-  const absoluteDir = path.join(process.cwd(), "public", "uploads", "avatars");
-  const absolutePath = path.join(absoluteDir, fileName);
 
-  await mkdir(absoluteDir, { recursive: true });
-  await writeFile(absolutePath, buffer);
-
-  return { path: relativePath };
+  try {
+    return { path: await storeAvatar(fileName, file) };
+  } catch {
+    return { error: "Could not upload your avatar. Please try again." };
+  }
 }
 
 export async function updateProfileAction(
@@ -110,17 +106,8 @@ export async function updateProfileAction(
       },
     });
 
-    if (
-      avatarUrl !== previousAvatarUrl &&
-      previousAvatarUrl &&
-      isLocalAvatarUrl(previousAvatarUrl)
-    ) {
-      const absoluteOldPath = path.join(
-        process.cwd(),
-        "public",
-        previousAvatarUrl.replace(/^\//, ""),
-      );
-      await unlink(absoluteOldPath).catch(() => undefined);
+    if (avatarUrl !== previousAvatarUrl && previousAvatarUrl) {
+      await deleteStoredAvatar(previousAvatarUrl);
     }
   } catch (error) {
     if (

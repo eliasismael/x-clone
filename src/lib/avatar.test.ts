@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildAvatarUrl, isLocalAvatarUrl, isVectorAvatarUrl } from "@/lib/avatar";
+import { buildAvatarUrl, isBlobAvatarUrl, isLocalAvatarUrl, isVectorAvatarUrl } from "@/lib/avatar";
 
 describe("buildAvatarUrl", () => {
   it("encodes the seed into a DiceBear initials URL", () => {
@@ -31,5 +31,18 @@ describe("isVectorAvatarUrl", () => {
 
   it("keeps raster uploads optimizable", () => {
     expect(isVectorAvatarUrl("/uploads/avatars/u1.webp")).toBe(false);
+  });
+});
+
+describe("isBlobAvatarUrl", () => {
+  it("detects avatars stored in Vercel Blob", () => {
+    expect(isBlobAvatarUrl("https://abc123.public.blob.vercel-storage.com/avatars/u1.png")).toBe(true);
+  });
+
+  it("rejects local, generated and look-alike URLs", () => {
+    expect(isBlobAvatarUrl("/uploads/avatars/u1.png")).toBe(false);
+    expect(isBlobAvatarUrl(buildAvatarUrl("jane"))).toBe(false);
+    expect(isBlobAvatarUrl("https://public.blob.vercel-storage.com.evil.com/a.png")).toBe(false);
+    expect(isBlobAvatarUrl(null)).toBe(false);
   });
 });
