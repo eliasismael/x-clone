@@ -24,11 +24,10 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 
 type TweetComposeProps = {
   user: { username: string; displayName: string; avatarUrl: string | null };
-  autoFocus?: boolean;
   onPosted?: () => void;
 };
 
-export function TweetCompose({ user, autoFocus = false, onPosted }: TweetComposeProps) {
+export function TweetCompose({ user, onPosted }: TweetComposeProps) {
   const [content, setContent] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [state, formAction] = useActionState<CreateTweetActionState, FormData>(
@@ -73,7 +72,6 @@ export function TweetCompose({ user, autoFocus = false, onPosted }: TweetCompose
           onChange={(e) => setContent(e.target.value)}
           placeholder="What's happening?"
           aria-label="Post text"
-          autoFocus={autoFocus}
           rows={1}
           className="block w-full resize-none bg-transparent py-3 text-xl leading-6 text-x-text outline-none placeholder:text-x-muted"
         />

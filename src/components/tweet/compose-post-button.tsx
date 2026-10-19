@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { TweetCompose } from "@/components/tweet/tweet-compose";
 import { CloseIcon, PlusIcon } from "@/components/ui/icons";
@@ -18,52 +18,54 @@ const triggerClass = {
 };
 
 export function ComposePostButton({ user, variant }: ComposePostButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  // The dialog stays mounted so the .x-modal CSS can animate both opening and closing
   const dialogRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    if (isOpen) dialogRef.current?.showModal();
-  }, [isOpen]);
+  function openDialog() {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    dialog.showModal();
+    dialog.querySelector("textarea")?.focus();
+  }
+
+  const closeDialog = useCallback(() => dialogRef.current?.close(), []);
 
   const handlePosted = useCallback(() => {
-    dialogRef.current?.close();
+    closeDialog();
     // createTweetAction only revalidates /home; refresh whatever page we posted from
     router.refresh();
-  }, [router]);
+  }, [closeDialog, router]);
 
   function handleBackdropClick(event: React.MouseEvent<HTMLDialogElement>) {
-    if (event.target === dialogRef.current) dialogRef.current.close();
+    if (event.target === dialogRef.current) closeDialog();
   }
 
   return (
     <>
-      <button type="button" aria-label="Post" onClick={() => setIsOpen(true)} className={triggerClass[variant]}>
+      <button type="button" aria-label="Post" onClick={openDialog} className={triggerClass[variant]}>
         <PlusIcon className={`size-6 ${variant === "sidebar" ? "xl:hidden" : ""}`} strokeWidth={2.25} />
         {variant === "sidebar" && <span className="hidden text-[17px] font-bold xl:inline">Post</span>}
       </button>
 
-      {isOpen && (
-        <dialog
-          ref={dialogRef}
-          aria-label="Compose post"
-          onClose={() => setIsOpen(false)}
-          onClick={handleBackdropClick}
-          className="mx-auto mt-[5vh] w-full max-w-[600px] rounded-2xl bg-x-bg p-0 text-x-text backdrop:bg-x-backdrop max-sm:m-0 max-sm:h-full max-sm:max-h-none max-sm:max-w-none max-sm:rounded-none"
-        >
-          <div className="flex h-[53px] items-center px-2">
-            <button
-              type="button"
-              aria-label="Close"
-              onClick={() => dialogRef.current?.close()}
-              className="flex size-9 items-center justify-center rounded-full transition-colors hover:bg-x-hover"
-            >
-              <CloseIcon className="size-5" strokeWidth={2} />
-            </button>
-          </div>
-          <TweetCompose user={user} autoFocus onPosted={handlePosted} />
-        </dialog>
-      )}
+      <dialog
+        ref={dialogRef}
+        aria-label="Compose post"
+        onClick={handleBackdropClick}
+        className="x-modal mx-auto mt-[5vh] w-full max-w-[600px] rounded-2xl bg-x-bg p-0 text-x-text max-sm:m-0 max-sm:h-full max-sm:max-h-none max-sm:max-w-none max-sm:rounded-none"
+      >
+        <div className="flex h-[53px] items-center px-2">
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={closeDialog}
+            className="flex size-9 items-center justify-center rounded-full transition-colors hover:bg-x-hover"
+          >
+            <CloseIcon className="size-5" strokeWidth={2} />
+          </button>
+        </div>
+        <TweetCompose user={user} onPosted={handlePosted} />
+      </dialog>
     </>
   );
 }

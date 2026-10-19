@@ -78,3 +78,52 @@
     background: rgba(29, 155, 240, 0.25);
   }
 }
+
+@layer components {
+  /* Modal that fades and rises in, and fades out on close. Needs the <dialog> to
+     stay mounted: open with showModal() and close with close() so CSS can animate */
+  .x-modal {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+    transition:
+      opacity 200ms ease-out,
+      transform 200ms ease-out,
+      overlay 200ms ease-out allow-discrete,
+      display 200ms ease-out allow-discrete;
+  }
+
+  .x-modal[open] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .x-modal::backdrop {
+    background-color: transparent;
+    transition:
+      background-color 200ms ease-out,
+      overlay 200ms ease-out allow-discrete,
+      display 200ms ease-out allow-discrete;
+  }
+
+  .x-modal[open]::backdrop {
+    background-color: var(--x-backdrop);
+  }
+
+  @starting-style {
+    .x-modal[open] {
+      opacity: 0;
+      transform: translateY(16px) scale(0.98);
+    }
+
+    .x-modal[open]::backdrop {
+      background-color: transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .x-modal,
+    .x-modal::backdrop {
+      transition: none;
+    }
+  }
+}
