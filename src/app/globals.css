@@ -1,44 +1,25 @@
 @import "tailwindcss";
 
-/* X (Twitter) palette — light by default, "Lights out" when the OS prefers dark. */
+/* X (Twitter) "Lights out" palette, the app's default and only theme */
 :root {
-  --x-bg: #ffffff;
-  --x-text: #0f1419;
-  --x-muted: #536471;
-  --x-border: #eff3f4;
-  --x-surface: #f7f9f9;
-  --x-input: #eff3f4;
-  --x-hover: rgba(15, 20, 25, 0.1);
-  --x-row-hover: rgba(0, 0, 0, 0.03);
-  --x-header: rgba(255, 255, 255, 0.85);
-  --x-backdrop: rgba(0, 0, 0, 0.4);
-  --x-inverse-bg: #0f1419;
-  --x-inverse-text: #ffffff;
+  --x-bg: #000000;
+  --x-text: #e7e9ea;
+  --x-muted: #71767b;
+  --x-border: #2f3336;
+  --x-surface: #16181c;
+  --x-input: #202327;
+  --x-hover: rgba(231, 233, 234, 0.1);
+  --x-row-hover: rgba(255, 255, 255, 0.03);
+  --x-header: rgba(0, 0, 0, 0.65);
+  --x-backdrop: rgba(91, 112, 131, 0.4);
+  --x-inverse-bg: #eff3f4;
+  --x-inverse-text: #0f1419;
   --x-blue: #1d9bf0;
   --x-blue-hover: #1a8cd8;
   --x-pink: #f91880;
   --x-red: #f4212e;
-  --x-banner: #cfd9de;
-  --x-shadow: rgba(101, 119, 134, 0.2) 0 0 15px, rgba(101, 119, 134, 0.15) 0 0 3px 1px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --x-bg: #000000;
-    --x-text: #e7e9ea;
-    --x-muted: #71767b;
-    --x-border: #2f3336;
-    --x-surface: #16181c;
-    --x-input: #202327;
-    --x-hover: rgba(231, 233, 234, 0.1);
-    --x-row-hover: rgba(255, 255, 255, 0.03);
-    --x-header: rgba(0, 0, 0, 0.65);
-    --x-backdrop: rgba(91, 112, 131, 0.4);
-    --x-inverse-bg: #eff3f4;
-    --x-inverse-text: #0f1419;
-    --x-banner: #333639;
-    --x-shadow: rgba(255, 255, 255, 0.2) 0 0 15px, rgba(255, 255, 255, 0.15) 0 0 3px 1px;
-  }
+  --x-banner: #333639;
+  --x-shadow: rgba(255, 255, 255, 0.2) 0 0 15px, rgba(255, 255, 255, 0.15) 0 0 3px 1px;
 }
 
 @theme inline {
@@ -71,7 +52,7 @@
   }
 
   html {
-    color-scheme: light dark;
+    color-scheme: dark;
   }
 
   body {
